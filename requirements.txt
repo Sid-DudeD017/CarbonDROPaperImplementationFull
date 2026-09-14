@@ -1,0 +1,9 @@
+numpy
+pandas
+matplotlib
+cvxpy
+torch
+requests
+scipy
+tqdm
+tabulate
