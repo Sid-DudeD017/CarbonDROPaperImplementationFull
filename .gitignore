@@ -1,2 +1,4 @@
-artifacts/
+artifacts/*
+!artifacts/six_method_phase13_1000/
+!artifacts/six_method_phase13_1000/**
 __pycache__/
