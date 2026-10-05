@@ -1,4 +1,7 @@
+.env
+venv/
+__pycache__/
+.pytest_cache/
 artifacts/*
 !artifacts/six_method_phase13_1000/
 !artifacts/six_method_phase13_1000/**
-__pycache__/

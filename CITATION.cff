@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: Carbon DRO Paper Implementation
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - given-names: Siddharth
+    family-names: Bhakta
+repository-code: https://github.com/Sid-DudeD017/CarbonDROPaperImplementation
+version: 1.0.0
+date-released: 2026-10-06

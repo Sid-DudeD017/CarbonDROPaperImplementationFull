@@ -11,10 +11,15 @@ TEST_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(TEST_DIR)
 TOOLS_DIR = os.path.join(PROJECT_DIR, "tools")
 RUNNER = os.path.join(TOOLS_DIR, "run_phase13_six_method.py")
-DATA_FILE = "/Users/siddharthbhakta/phase13_real_data_worktree/data/phase13/processed/paper_day_2025-08-05.csv"
-
-if not os.path.exists(DATA_FILE):
-    DATA_FILE = "/Users/siddharthbhakta/phase13_real_data_worktree/data/phase13/processed/grid_normalized.csv"
+DATA_FILE = os.environ.get(
+    "PHASE13_PAPER_DAY",
+    os.path.join(
+        PROJECT_DIR,
+        "artifacts",
+        "six_method_phase13_1000",
+        "selected_input_day.csv",
+    ),
+)
 
 ARTIFACTS_DIR = os.path.join(PROJECT_DIR, "artifacts", "six_method_phase13_test")
 
