@@ -128,4 +128,7 @@ artifacts/six_method_phase13_test3/
 
 # Matplotlib/font caches
 .matplotlib/
-fontlist-*.json
+fontlist-*.jsondata/regime_shift/raw/
+data/regime_shift/cache/
+data/regime_shift/processed/
+data/regime_shift/scenarios/
