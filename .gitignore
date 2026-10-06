@@ -1,7 +1,131 @@
+# =============================================================================
+# CarbonDROPaperImplementation
+# =============================================================================
+
+# Credentials and local environment variables
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+secrets.json
+
+# Python virtual environments
 venv/
+.venv/
+env/
+ENV/
+
+# Python caches and compiled files
 __pycache__/
+*.py[cod]
+*$py.class
+*.pyo
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# Python build and package output
+build/
+dist/
+*.egg
+*.egg-info/
+.eggs/
+wheels/
+*.whl
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# macOS and operating-system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Desktop.ini
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.orig
+.cache/
+tmp/
+temp/
+
+# Temporary verification and patch scripts
+verify.py
+get_stats.py
+check_artifacts.py
+test_artifacts_safety.py
+update_test.py
+patch_*.py
+fix_*.py
+rewrite_*.py
+
+# Locally downloaded/raw datasets
+local_data/
+data/
+downloads/
+raw_data/
+real_data_collection/data/
+
+# API response caches
+*.zip
+*.token
+token.json
+api_cache/
+cache/
+
+# Local experiment reruns
+reproduced_results/
+out/
+out_*/
+results/
+results_*/
+scratch_outputs/
+scratch_plots/
+
+# Ignore generated artifacts by default
 artifacts/*
+
+# Preserve the final verified 1,000-OOD publication artifacts
 !artifacts/six_method_phase13_1000/
 !artifacts/six_method_phase13_1000/**
+
+# Nested repositories or accidental local clones
+CarbonDROpaperImplementation/
+CarbonDROPaperImplementation/
+CarbonAwareDROSixScheduler/
+
+# Local worktrees
+*_worktree/
+*worktree*/
+phase*_worktree/
+agent_*_worktree/
+
+# Test-generated artifact directories
+artifacts/six_method_phase13_test/
+artifacts/six_method_phase13_test2/
+artifacts/six_method_phase13_test3/
+
+# Matplotlib/font caches
+.matplotlib/
+fontlist-*.json

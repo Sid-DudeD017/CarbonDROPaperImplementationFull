@@ -1,0 +1,12 @@
+{
+  "input_file": "paper_day_2025-08-05.csv",
+  "n_ood": 100,
+  "seed": 42,
+  "I": 3,
+  "T": 24,
+  "J": 60,
+  "S": 20,
+  "workload_seed": 42,
+  "lstm_disabled": true,
+  "dro_solver": "greedy"
+}
