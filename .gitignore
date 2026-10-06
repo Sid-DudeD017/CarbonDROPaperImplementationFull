@@ -132,3 +132,4 @@ fontlist-*.jsondata/regime_shift/raw/
 data/regime_shift/cache/
 data/regime_shift/processed/
 data/regime_shift/scenarios/
+data/regime_shift/base/
