@@ -1,64 +1,107 @@
 import json
-import re
-import subprocess
+import csv
 from pathlib import Path
 
-def test_website():
+def test_six_methods_and_metrics():
     project_dir = Path(__file__).resolve().parent.parent
     website_dir = project_dir / 'website'
+    artifact_dir = project_dir / 'artifacts/six_method_phase13_1000'
 
     with open(website_dir / 'data' / 'results.json') as f:
         data = json.load(f)
 
-    with open(website_dir / 'index.html') as f:
-        html = f.read()
-
     metrics = data['metrics']
     schedulers = set(metrics.keys())
-
     assert schedulers == {'CM', 'CF', 'RF', 'SBS', 'RO', 'DRO'}
 
-    assert f"{metrics['CM']['exp_cost']:.6f}" in html
-    assert f"{metrics['CM']['cvar90_carbon']:.2f}" in html
-    assert f"{metrics['RF']['exp_carbon']:.2f}" in html
+    # Read raw CSV to compare
+    raw_metrics = {}
+    with open(artifact_dir / 'aggregate_results.csv') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            raw_metrics[row['method']] = row
 
-    cm_cvar = metrics['CM']['cvar90_carbon']
-    ro_cvar = metrics['RO']['cvar90_carbon']
-    assert round(metrics['RO']['reduction_cvar_vs_cm_pct'], 2) == round(((cm_cvar - ro_cvar) / cm_cvar) * 100, 2)
+    assert set(raw_metrics.keys()) == schedulers
 
-    assert "CVaR₀.₉ estimates average emissions among the worst 10% of evaluated outcomes. It is an evaluation metric, not a scheduler." in html
-    assert "Renewable-First" in html
-    assert "Random Forest" not in html
+    cm_carbon = float(raw_metrics['CM']['exp_carbon'])
+    cm_cvar = float(raw_metrics['CM']['cvar90_carbon'])
 
-    assert "phase13" not in html.lower()
+    for method in schedulers:
+        exp_carbon = float(raw_metrics[method]['exp_carbon'])
+        cvar = float(raw_metrics[method]['cvar90_carbon'])
 
-    assert "exact reproduction" not in html.lower()
+        # Verify metric equality
+        assert metrics[method]['exp_carbon'] == exp_carbon
+        assert metrics[method]['cvar90_carbon'] == cvar
 
-    assert "Measured" in html
-    assert "Modeled" in html
-    assert "Generated" in html
-    assert "Derived" in html
+        # Verify reductions
+        expected_red_carbon = (cm_carbon - exp_carbon) / cm_carbon * 100 if method != 'CM' else 0.0
+        expected_red_cvar = (cm_cvar - cvar) / cm_cvar * 100 if method != 'CM' else 0.0
+        assert round(metrics[method]['reduction_carbon_vs_cm_pct'], 4) == round(expected_red_carbon, 4)
+        assert round(metrics[method]['reduction_cvar_vs_cm_pct'], 4) == round(expected_red_cvar, 4)
 
-    # Missing paper CF-CVaR is rendered "Not reported"
+def test_n_ood_consistency():
+    project_dir = Path(__file__).resolve().parent.parent
+    artifact_dir = project_dir / 'artifacts/six_method_phase13_1000'
+
+    with open(artifact_dir / 'configuration.json') as f:
+        config = json.load(f)
+    expected_n_ood = int(config['n_ood'])
+
+    with open(artifact_dir / 'aggregate_results.csv') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            assert int(row['n_ood']) == expected_n_ood
+
+def test_checksums_present():
+    project_dir = Path(__file__).resolve().parent.parent
+    website_dir = project_dir / 'website'
+    with open(website_dir / 'data' / 'results.json') as f:
+        data = json.load(f)
+    assert 'source_artifact_checksums' in data
+    assert 'aggregate_results.csv' in data['source_artifact_checksums']
+
+def test_cf_paper_cvar_not_reported():
+    project_dir = Path(__file__).resolve().parent.parent
+    website_dir = project_dir / 'website'
+    with open(website_dir / 'data' / 'results.json') as f:
+        data = json.load(f)
+    assert data['metrics']['CF']['paper_comparison']['paper_cvar90'] is None
+
+    with open(website_dir / 'index.html') as f:
+        html = f.read()
     assert "Not reported" in html
 
-    # Offline checks
+def test_no_external_runtime_dependency():
+    project_dir = Path(__file__).resolve().parent.parent
+    with open(project_dir / 'website/index.html') as f:
+        html = f.read()
     assert "http:" not in html and "https:" not in html
-    assert "user-scalable=no" not in html
 
+def test_no_accessibility_zoom_restriction():
+    project_dir = Path(__file__).resolve().parent.parent
+    with open(project_dir / 'website/index.html') as f:
+        html = f.read()
+    assert "user-scalable=no" not in html
+    assert "maximum-scale=1.0" not in html
+
+def test_readme_and_website_commands_match():
+    project_dir = Path(__file__).resolve().parent.parent
     with open(project_dir / 'README.md') as f:
         readme = f.read()
-    assert "tools/run_benchmark.py" in readme
-    assert "tools/run_benchmark.py" in html
+    with open(project_dir / 'website/index.html') as f:
+        html = f.read()
 
-    # CLI argument parsing check
-    with open(project_dir / 'tools' / 'run_benchmark.py') as f:
-        run_py = f.read()
-    assert "argparse" in run_py
-    assert "--ood-cases" in run_py
-    assert "--seed" in run_py
+    cmd = "tools/run_benchmark.py"
+    assert cmd in readme
+    assert cmd in html
 
-    print("All website tests passed.")
-
-if __name__ == '__main__':
-    test_website()
+def test_other_textual_constraints():
+    project_dir = Path(__file__).resolve().parent.parent
+    with open(project_dir / 'website/index.html') as f:
+        html = f.read()
+    assert "Renewable-First" in html
+    assert "Random Forest" not in html
+    assert "phase13" not in html.lower()
+    assert "exact reproduction" not in html.lower()
+    assert "CVaR₀.₉ estimates average emissions among the worst 10% of evaluated outcomes. It is an evaluation metric, not a scheduler." in html

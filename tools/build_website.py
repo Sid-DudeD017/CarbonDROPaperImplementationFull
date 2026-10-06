@@ -13,6 +13,8 @@ def build_html():
     metrics = data['metrics']
     config = data['configuration']
     prov = data['provenance_classifications']
+    checksums = data['source_artifact_checksums']
+    agg_checksum = checksums['aggregate_results.csv'][:8]
 
     replacements = {
         '{{SEED}}': str(config['seed']),
@@ -29,7 +31,7 @@ def build_html():
         '{{PROV_OOD_SCENARIOS}}': prov['ood_scenarios'],
         '{{PROV_CARBON_CVAR09}}': prov['carbon_cvar09'],
         '{{TIMESTAMP}}': "Generated reproducibly",
-        '{{COMMIT}}': data['source_commit'],
+        '{{COMMIT}}': f"Checksum: {agg_checksum}",
 
         '{{CM_COST}}': f"{metrics['CM']['exp_cost']:.6f}",
         '{{CM_CVAR}}': f"{metrics['CM']['cvar90_carbon']:.2f}",

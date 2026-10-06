@@ -1,5 +1,9 @@
 {
-  "source_commit": "67cbdfc5ee98f7565bf1ce6fb44f2dca0186917d",
+  "source_artifact_checksums": {
+    "configuration.json": "e4d6f507b08469196ffb7203198dbf3695e898ebc38a79cc248807bfaf79dfd7",
+    "aggregate_results.csv": "35de290b673a3ec2c6c24d46e52da036380aed5610c6004fc713e6474080a524",
+    "paper_comparison.csv": "f4b7e86e54f65cf390f1378c9b672dc77afc76de3649b6c2d867f9e5fa19cf5e"
+  },
   "configuration": {
     "input_file": "paper_day_2025-08-05.csv",
     "n_ood": 1000,
