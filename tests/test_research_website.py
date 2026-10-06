@@ -1,3 +1,4 @@
+import re
 import json
 import csv
 from pathlib import Path
@@ -105,3 +106,56 @@ def test_other_textual_constraints():
     assert "phase13" not in html.lower()
     assert "exact reproduction" not in html.lower()
     assert "CVaR₀.₉ estimates average emissions among the worst 10% of evaluated outcomes. It is an evaluation metric, not a scheduler." in html
+
+def test_stylesheet_link():
+    project_dir = Path(__file__).resolve().parent.parent
+    with open(project_dir / 'website/index.html') as f:
+        html = f.read()
+
+    # Check link exists and is inside <head>
+    head_match = re.search(r'<head>(.*?)</head>', html, re.DOTALL)
+    assert head_match is not None, "Missing <head> tag"
+    head_content = head_match.group(1)
+
+    assert '<link rel="stylesheet" href="./assets/tailwind.css">' in head_content
+    assert '<link rel="stylesheet" href="./assets/tailwind.css">' not in html.replace(head_content, "")
+
+    css_path = project_dir / 'website/assets/tailwind.css'
+    assert css_path.exists()
+    assert css_path.stat().st_size > 0
+
+    with open(css_path) as f:
+        css = f.read()
+
+    # Check representative rules
+    assert 'bg-surface-container' in css or 'bg-primary' in css or 'text-on-surface' in css
+
+    # No external stylesheets
+    assert "cdn.tailwindcss.com" not in html
+    assert "fonts.googleapis.com" not in html
+
+def test_local_server_css_response():
+    import urllib.request
+    import threading
+    import http.server
+    import socketserver
+
+    project_dir = Path(__file__).resolve().parent.parent
+
+    class Handler(http.server.SimpleHTTPRequestHandler):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, directory=str(project_dir / 'website'), **kwargs)
+
+    port = 8000
+    with socketserver.TCPServer(("", port), Handler) as httpd:
+        thread = threading.Thread(target=httpd.serve_forever)
+        thread.daemon = True
+        thread.start()
+
+        req = urllib.request.Request(f'http://localhost:{port}/assets/tailwind.css')
+        try:
+            with urllib.request.urlopen(req) as response:
+                assert response.status == 200
+                assert 'text/css' in response.headers.get('Content-Type', '')
+        finally:
+            httpd.shutdown()
