@@ -9,7 +9,7 @@ This repository evaluates six carbon-aware cloud scheduling policies on a common
 - **Additional Cloud Sites:** Modeled (Transformed multi-site carbon and price signals).
 - **Renewable Availability Proxy:** Modeled (Regional solar and wind profile generation function).
 - **60 Batch Workload Traces:** Generated (Synthetic job execution windows, resource demands, and deadlines).
-- **1,000 OOD Scenarios:** Generated (Extreme weather, thermal shifts, and transmission stress conditions).
+- **1,000 OOD Scenarios:** Generated (Generated perturbations of the experiment’s uncertain grid inputs..
 - **Carbon CVaR₀.₉:** Derived (Expected carbon emissions conditional on the worst 10% tail outcomes. It is an evaluation metric, not a scheduler).
 
 ## Exact Experiment Configuration

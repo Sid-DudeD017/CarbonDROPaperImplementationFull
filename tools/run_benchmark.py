@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
 import sys
+import argparse
 import subprocess
 from pathlib import Path
 
 def main():
+    parser = argparse.ArgumentParser(description="Benchmark runner wrapper")
+    parser.add_argument('--ood-cases', type=int, default=1000)
+    parser.add_argument('--seed', type=int, default=42)
+    parser.add_argument('--output-dir', type=str, default='reproduced_results')
+    parser.add_argument('--input', type=str, default='artifacts/six_method_phase13_1000/selected_input_day.csv')
+    args = parser.parse_args()
+
     project_dir = Path(__file__).resolve().parent.parent
     script = project_dir / 'tools' / 'run_phase13_six_method.py'
 
-    # Map friendly arguments to the original script arguments if needed,
-    # or just pass them through. We know the original used:
-    # --input artifacts/six_method_phase13_1000/selected_input_day.csv --n-ood 1000 --seed 42 --output-dir reproduced_results
-
     cmd = [
         sys.executable, str(script),
-        '--input', str(project_dir / 'artifacts' / 'six_method_phase13_1000' / 'selected_input_day.csv'),
-        '--n-ood', '1000',
-        '--seed', '42',
-        '--output-dir', 'reproduced_results'
+        '--input', args.input,
+        '--n-ood', str(args.ood_cases),
+        '--seed', str(args.seed),
+        '--output-dir', args.output_dir
     ]
     print(f"Running: {' '.join(cmd)}")
     subprocess.check_call(cmd, cwd=str(project_dir))

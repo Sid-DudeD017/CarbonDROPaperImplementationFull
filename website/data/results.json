@@ -1,6 +1,5 @@
 {
-  "generation_timestamp": "2026-10-06T07:08:17.776328Z",
-  "source_commit": "fd7c3b40590572b3e30d6f50bca25df3e8fb44f0",
+  "source_commit": "67cbdfc5ee98f7565bf1ce6fb44f2dca0186917d",
   "configuration": {
     "input_file": "paper_day_2025-08-05.csv",
     "n_ood": 1000,
