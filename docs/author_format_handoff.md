@@ -10,7 +10,7 @@ This repository provides an end-to-end implementation of the Carbon-Aware Distri
 
 All results under `author_format_outputs/` are generated from this repository's own model pipelines, algorithms, and data structures.
 
-> **Disclaimer**: Matching filenames and CSV schemas between `author_format_outputs/` and `reference_results_author/` does **not** imply identical numerical results. In particular:
+> **Disclaimer**: Matching filenames and CSV schemas between `author_format_outputs/` and `reference_results_author/` does **not** imply identical paper or numerical results. In particular:
 > - The reference results were produced with earlier/different revisions and random seeds.
 > - The experiments here reflect the actual implemented algorithms (`scheduler_v4_2.py`) under greedy integer projection with convex relaxation.
 
@@ -19,11 +19,16 @@ All results under `author_format_outputs/` are generated from this repository's 
 ## 2. Input Datasets & Provenance
 
 ### 2.1 Demonstration Dataset
-- **Tracked demonstration file**: `example_data/paper_day_2025-08-05.csv`
+- **Tracked input file**: `example_data/paper_day_2025-08-05.csv`
 - **Rows**: Exactly 24 hourly observations corresponding to the California market day August 5, 2025 (2025-08-05T07:00:00Z through 2025-08-06T06:00:00Z UTC).
 - **Columns**: `timestamp_utc`, `site_id`, `latitude`, `longitude`, `carbon_kg_per_kwh`, `price_usd_per_kwh`.
-- **Source**: WattTime Marginal Operating Emissions Rate (MOER) for `CAISO_NORTH` and California ISO (CAISO) OASIS Day-Ahead Market (DAM) Locational Marginal Price (LMP) for node `TH_NP15_GEN-APND`.
-- **Role**: Serves as a small, reproducible demonstration and verification dataset.
+- **Site 1**: Authentic WattTime Marginal Operating Emissions Rate (MOER) for `CAISO_NORTH` and California ISO (CAISO) OASIS Day-Ahead Market (DAM) Locational Marginal Price (LMP) for node `TH_NP15_GEN-APND`.
+- **Site 2 and Site 3**: Modeled transformations based on documented intra-region transmission offsets:
+  - Site 2: `price = Site 1 price * 1.042`, `carbon = Site 1 carbon + 0.028`
+  - Site 3: `price = Site 1 price * 0.969`, `carbon = max(Site 1 carbon - 0.018, 0)`
+- **Renewable Fraction**: Derived availability proxy computed from the carbon signal:
+  - Formula: `renew[t] = 0.78 - ((carbon[t] - min) / (max - min)) * 0.63`, clipped to `[0.15, 0.78]`.
+- **Workloads, Capacities, and OOD Cases**: All job parameters ($a, d, p$), datacenter capacities ($C$), and out-of-distribution (OOD) perturbation scenarios are synthetic/modeled workloads generated via parameterized seeds.
 
 ### 2.2 Live Data Acquisition Pipeline
 - **Script**: `tools/acquire_phase13_data.py`
@@ -35,12 +40,13 @@ All results under `author_format_outputs/` are generated from this repository's 
 
 ## 3. Experimental Configurations & Execution
 
-The experiment runner executed the six methods (`CM`, `CF`, `RF`, `SBS`, `RO`, `DRO`) across all implemented experiment blocks:
+The author-format runner explicitly loads `example_data/paper_day_2025-08-05.csv` using the reusable `tools.input_loader` module and populates the real-data arrays before executing all experimental blocks:
 
 ```bash
-export MPLCONFIGDIR=/tmp/matplotlib_cache
+export MPLCONFIGDIR=/tmp/carbon_mpl
 python scheduler_v4_2.py \
     --out author_format_outputs \
+    --input example_data/paper_day_2025-08-05.csv \
     --n-bench 1000 \
     --n-real 100 \
     --dro-solver greedy \
@@ -54,6 +60,8 @@ python scheduler_v4_2.py \
 4. **SBS** (Scenario-Based Stochastic Optimization)
 5. **RO** (Robust Optimization)
 6. **DRO** (Distributionally Robust Optimization)
+
+All six methods are evaluated against common inputs across all benchmark scenarios.
 
 ---
 
@@ -90,6 +98,14 @@ All 14 reference plot filenames are generated:
 - `plot13_real_data_comparison.png`: Real-data performance comparison across all 6 methods.
 - `plot14_compute_cost.png`: Compute runtime scaling across problem dimensions.
 
+### 4.3 Output Run Manifest (`author_format_outputs/run_manifest.json`)
+The run manifest records:
+- Input path and SHA-256 checksum (`39c647650ff845acc4eb0eafd279ac400b6c5c3ba9bfe1c1393d241475924c50`).
+- Exact row count (24) and UTC timestamp range (`2025-08-05T07:00:00Z` to `2025-08-06T06:00:00Z`).
+- Problem dimensions and seeds for each experimental module.
+- OOD case counts (1,000 benchmark, 100 real-data).
+- Data provenance confirming Site 1 authenticity, modeled Site 2 and 3 offsets, and derived renewable proxy.
+
 ---
 
 ## 5. Output Manifest & Status
@@ -104,6 +120,7 @@ All 14 reference plot filenames are generated:
 | `metrics_scale_sweep.csv` | `GENERATED` | Produced by `run_scale_sweep` (seeds 11, 12, 13) |
 | `metrics_sensitivity.csv` | `GENERATED` | Produced by `run_sensitivity` (seeds 21, 22) |
 | `metrics_compute_cost.csv` | `GENERATED` | Produced by `build_compute_cost_table` (5 scale configs × 6 methods) |
+| `run_manifest.json` | `GENERATED` | Comprehensive metadata and configuration manifest |
 | `plots/plot1_comparative_barplot.png` through `plots/plot14_compute_cost.png` | `GENERATED` | 14 plots rendered and saved with dpi 150-250 |
 
 ### Unavailable Experiments / Metrics Manifest

@@ -1,0 +1,63 @@
+{
+  "input_path": "example_data/paper_day_2025-08-05.csv",
+  "input_absolute_path": "/Users/siddharthbhakta/CarbonDROPaperImplementation/example_data/paper_day_2025-08-05.csv",
+  "input_sha256": "39c647650ff845acc4eb0eafd279ac400b6c5c3ba9bfe1c1393d241475924c50",
+  "row_count": 24,
+  "timestamp_range": {
+    "start": "2025-08-05T07:00:00Z",
+    "end": "2025-08-06T06:00:00Z"
+  },
+  "site_count": 3,
+  "dimensions": {
+    "I": 3,
+    "T": 24,
+    "J": 60,
+    "S": 20
+  },
+  "bench_dimensions": {
+    "I": 4,
+    "T": 24,
+    "J": 100,
+    "S": 10
+  },
+  "ood_counts": {
+    "benchmark_ood": 1000,
+    "real_data_ood": 100
+  },
+  "random_seeds": {
+    "main_seed": 7,
+    "real_data_base_seed": 42,
+    "bench_seed": 100,
+    "pareto_seed": 200,
+    "battery_seed": 30,
+    "scale_sweep_seeds": [
+      11,
+      12,
+      13
+    ],
+    "sensitivity_seeds": [
+      21,
+      22
+    ]
+  },
+  "dro_solver_mode": "greedy",
+  "common_inputs_for_all_six_methods": true,
+  "data_provenance": {
+    "site1": "authentic_watttime_caiso",
+    "site2": "modeled_transformation_price_1.042_carbon_plus_0.028",
+    "site3": "modeled_transformation_price_0.969_carbon_minus_0.018",
+    "renewable_fraction": "derived_proxy_formula_0.78_minus_normalized_0.63",
+    "site2_site3_modeled": true,
+    "renewable_values_derived": true,
+    "jobs_and_capacities": "synthetic_modeled_workloads",
+    "ood_scenarios": "synthetic_ar1_perturbations"
+  },
+  "methods_evaluated": [
+    "CM",
+    "CF",
+    "RF",
+    "SBS",
+    "RO",
+    "DRO"
+  ]
+}

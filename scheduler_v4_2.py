@@ -1313,55 +1313,24 @@ def plot12_gantt(inst: Instance, x: np.ndarray, out_png: str):
 # Downloaded February 26 2026. No synthetic fabrication.
 # ============================================================================
 
-# Shape: (I=3, T=24)  — rows: Bay Area (DC1), LA (DC2), Sacramento (DC3)
-_REAL_CARBON_INTENSITY = np.array([
-    # Bay Area, CA (DC1) — WattTime CAISO_NORTH, Aug 5 2025
-    [0.4269,0.4199,0.4172,0.4229,0.4267,0.4293,0.4305,0.4310,0.3786,0.4450,0.4286,0.4276,
-     0.3938,0.4262,0.0500,0.4346,0.4499,0.4518,0.4428,0.4435,0.4277,0.4184,0.4172,0.4179],
-    # Los Angeles, CA (DC2) — Bay Area + 0.028 kg CO2/kWh (local gas peaker premium)
-    [0.4569,0.4499,0.4472,0.4529,0.4567,0.4593,0.4605,0.4610,0.4086,0.4750,0.4586,0.4576,
-     0.4238,0.4562,0.0783,0.4646,0.4799,0.4818,0.4728,0.4735,0.4577,0.4484,0.4472,0.4479],
-    # Sacramento, CA (DC3) — Bay Area − 0.018 kg CO2/kWh (higher hydro access)
-    [0.4069,0.3999,0.3972,0.4029,0.4067,0.4093,0.4105,0.4110,0.3586,0.4250,0.4086,0.4076,
-     0.3738,0.4062,0.0500,0.4146,0.4299,0.4318,0.4228,0.4235,0.4077,0.3984,0.3972,0.3979],
-], dtype=float)
-
-# Shape: (I=3, T=24)  — CAISO OASIS Day-Ahead LMP $/kWh
-_REAL_PRICE = np.array([
-    # Bay Area, CA (DC1) — CAISO OASIS node TH_NP15_GEN-APND
-    [0.0345,0.0417,0.0464,0.0480,0.0452,0.0443,0.0356,0.0424,0.0399,0.0393,0.0384,0.0389,
-     0.0402,0.0415,0.0306,0.0269,0.0275,0.0249,0.0258,0.0258,0.0265,0.0272,0.0314,0.0314],
-    # Los Angeles, CA (DC2) — NP15 LMP × 1.042 (congestion premium)
-    [0.0358,0.0434,0.0483,0.0499,0.0470,0.0461,0.0370,0.0441,0.0415,0.0409,0.0399,0.0404,
-     0.0418,0.0432,0.0318,0.0280,0.0286,0.0259,0.0268,0.0268,0.0276,0.0283,0.0327,0.0327],
-    # Sacramento, CA (DC3) — NP15 LMP × 0.969 (lower congestion)
-    [0.0334,0.0405,0.0450,0.0466,0.0438,0.0430,0.0345,0.0411,0.0387,0.0381,0.0373,0.0377,
-     0.0390,0.0403,0.0297,0.0261,0.0267,0.0241,0.0250,0.0250,0.0257,0.0264,0.0305,0.0305],
-], dtype=float)
-
-# Shape: (I=3, T=24)  — renewable fraction (derived from carbon signal, r²≈0.91)
-# Formula: renew[t] = 0.78 − (carbon[t]−min)/(max−min) × 0.63
-# High-solar hour 14 (carbon≈0.05) correctly maps to ~0.78 renewable fraction.
-_REAL_RENEW_FRAC = np.array([
-    # Bay Area, CA (DC1)
-    [0.1889,0.1998,0.2040,0.1951,0.1892,0.1851,0.1833,0.1825,0.2643,0.1606,0.1862,0.1878,
-     0.2406,0.1900,0.7800,0.1769,0.1530,0.1500,0.1641,0.1630,0.1876,0.2021,0.2040,0.2029],
-    # Los Angeles, CA (DC2)
-    [0.1589,0.1698,0.1740,0.1651,0.1592,0.1551,0.1533,0.1525,0.2343,0.1306,0.1562,0.1578,
-     0.2106,0.1600,0.7500,0.1469,0.1230,0.1200,0.1341,0.1330,0.1576,0.1721,0.1740,0.1729],
-    # Sacramento, CA (DC3)
-    [0.2089,0.2198,0.2240,0.2151,0.2092,0.2051,0.2033,0.2025,0.2843,0.1806,0.2062,0.2078,
-     0.2606,0.2100,0.8000,0.1969,0.1730,0.1700,0.1841,0.1830,0.2076,0.2221,0.2240,0.2229],
-], dtype=float)
+# Shape: (I=3, T=24)  — initialized to None; must be loaded via CSV loader
+_REAL_CARBON_INTENSITY: Optional[np.ndarray] = None
+_REAL_PRICE: Optional[np.ndarray] = None
+_REAL_RENEW_FRAC: Optional[np.ndarray] = None
 
 
 def gen_real_data_instance(J: int = 60, S: int = 20, seed: int = 42) -> Instance:
     """
     Build an Instance whose price/carbon/renew traces are calibrated to the
-    embedded PJM/WattTime real-data arrays above.  Scenario uncertainty is
+    real-data arrays loaded from CSV. Scenario uncertainty is
     added as small AR(1) perturbations around the real signal so that the
     DRO machinery (ambiguity sets, CVaR) is exercised realistically.
     """
+    if _REAL_PRICE is None or _REAL_CARBON_INTENSITY is None or _REAL_RENEW_FRAC is None:
+        raise RuntimeError(
+            "Real-data arrays (_REAL_PRICE, _REAL_CARBON_INTENSITY, _REAL_RENEW_FRAC) are not populated. "
+            "Load them explicitly from CSV using tools.input_loader.load_paper_day_csv() before calling gen_real_data_instance."
+        )
     I, T = 3, 24
     rng = np.random.default_rng(seed)
 
@@ -1571,6 +1540,7 @@ def plot14_compute_cost(df: pd.DataFrame, out_png: str) -> None:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--out", default="out_v4_2", help="Output directory")
+    parser.add_argument("--input", default="example_data/paper_day_2025-08-05.csv", help="Input CSV path for real-data arrays")
     parser.add_argument("--n-bench", type=int, default=1000, help="Number of OOD benchmark scenarios")
     parser.add_argument("--n-real",  type=int, default=100,  help="OOD scenarios for real-data experiment (FIX-3)")
     parser.add_argument("--use-lstm", action="store_true", help="Use LSTM forecasts (falls back if torch missing)")
@@ -1581,8 +1551,16 @@ def main():
     ensure_dirs(args.out)
     plot_dir = os.path.join(args.out, "plots")
 
+    # Load input data explicitly from CSV
+    from tools.input_loader import load_paper_day_csv
+    global _REAL_PRICE, _REAL_CARBON_INTENSITY, _REAL_RENEW_FRAC
+    _REAL_PRICE, _REAL_CARBON_INTENSITY, _REAL_RENEW_FRAC, input_meta = load_paper_day_csv(args.input)
+
     print("=" * 80)
     print("CARBON-AWARE SCHEDULER v4.2  (JoCC revision)")
+    print("=" * 80)
+    print(f"Loaded input data: {input_meta['input_relpath']} (SHA-256: {input_meta['input_sha256']})")
+    print(f"Rows: {input_meta['row_count']}, Timestamps: {input_meta['timestamp_start']} to {input_meta['timestamp_end']}")
     print("=" * 80)
     # FIX-2: Integer-relaxation disclaimer
     print("NOTE: All results use the convex-relaxation path with greedy integer")
@@ -1675,10 +1653,67 @@ def main():
     plot13_real_data_comparison(df_real, os.path.join(plot_dir, "plot13_real_data_comparison.png"))
     plot14_compute_cost(df_compute, os.path.join(plot_dir, "plot14_compute_cost.png"))
 
+    # Write author-format run manifest
+    import json
+    manifest = {
+        "input_path": input_meta["input_relpath"],
+        "input_absolute_path": input_meta["input_path"],
+        "input_sha256": input_meta["input_sha256"],
+        "row_count": input_meta["row_count"],
+        "timestamp_range": {
+            "start": input_meta["timestamp_start"],
+            "end": input_meta["timestamp_end"],
+        },
+        "site_count": input_meta["site_count"],
+        "dimensions": {
+            "I": 3,
+            "T": 24,
+            "J": 60,
+            "S": 20,
+        },
+        "bench_dimensions": {
+            "I": 4,
+            "T": 24,
+            "J": 100,
+            "S": 10,
+        },
+        "ood_counts": {
+            "benchmark_ood": args.n_bench,
+            "real_data_ood": args.n_real,
+        },
+        "random_seeds": {
+            "main_seed": args.seed,
+            "real_data_base_seed": 42,
+            "bench_seed": 100,
+            "pareto_seed": 200,
+            "battery_seed": 30,
+            "scale_sweep_seeds": [11, 12, 13],
+            "sensitivity_seeds": [21, 22],
+        },
+        "dro_solver_mode": args.dro_solver,
+        "common_inputs_for_all_six_methods": True,
+        "data_provenance": {
+            "site1": "authentic_watttime_caiso",
+            "site2": "modeled_transformation_price_1.042_carbon_plus_0.028",
+            "site3": "modeled_transformation_price_0.969_carbon_minus_0.018",
+            "renewable_fraction": "derived_proxy_formula_0.78_minus_normalized_0.63",
+            "site2_site3_modeled": True,
+            "renewable_values_derived": True,
+            "jobs_and_capacities": "synthetic_modeled_workloads",
+            "ood_scenarios": "synthetic_ar1_perturbations",
+        },
+        "methods_evaluated": ["CM", "CF", "RF", "SBS", "RO", "DRO"],
+    }
+    manifest_path = os.path.join(args.out, "run_manifest.json")
+    with open(manifest_path, "w") as f:
+        json.dump(manifest, f, indent=2)
+
+    print(f"Manifest written to: {manifest_path}")
     print("\nDone — v4.2")
     print(f"Outputs: {args.out}/")
     print("  New: metrics_real_data.csv  metrics_compute_cost.csv")
     print("       plot13_real_data_comparison.png  plot14_compute_cost.png")
+    print("       run_manifest.json")
 
 
 if __name__ == "__main__":
