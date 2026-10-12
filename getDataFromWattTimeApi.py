@@ -12,8 +12,7 @@ auth = HTTPBasicAuth(os.getenv("WATTTIME_USERNAME"), os.getenv("WATTTIME_PASSWOR
 response = requests.get(login_url, auth=auth)
 token = response.json().get("token")
 
-print("--- YOUR WATTTIME ACCESS TOKEN ---")
-print(token)  # Valid for 30 minutes
+print("--- WATTTIME ACCESS TOKEN OBTAINED (NOT DISPLAYED FOR SECURITY) ---")
 print("---------------------------------\n")
 
 # 2. Fetch CO2 Emissions Forecast for CAISO_NORTH
