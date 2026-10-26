@@ -15,13 +15,12 @@ DATA_FILE = os.environ.get(
     "PHASE13_PAPER_DAY",
     os.path.join(
         PROJECT_DIR,
-        "artifacts",
-        "six_method_phase13_1000",
-        "selected_input_day.csv",
+        "example_data",
+        "paper_day_2025-08-05.csv",
     ),
 )
 
-ARTIFACTS_DIR = os.path.join(PROJECT_DIR, "artifacts", "six_method_phase13_test")
+ARTIFACTS_DIR = os.path.join(PROJECT_DIR, "local_outputs", "six_method_phase13_test")
 
 @pytest.fixture(scope="session")
 def run_smoke_test():
@@ -90,7 +89,7 @@ def test_smoke_run_outputs(run_smoke_test):
     assert np.all(np.isfinite(df["cvar90_carbon"]))
 
 def test_determinism():
-    dir2 = os.path.join(PROJECT_DIR, "artifacts", "six_method_phase13_test2")
+    dir2 = os.path.join(PROJECT_DIR, "local_outputs", "six_method_phase13_test2")
     os.makedirs(dir2, exist_ok=True)
     cmd = [
         sys.executable, RUNNER,
@@ -116,7 +115,7 @@ def test_checksum_sensitivity():
     df.loc[0, "price_usd_per_kwh"] += 0.001
     df.to_csv(modified_data, index=False)
 
-    dir3 = os.path.join(PROJECT_DIR, "artifacts", "six_method_phase13_test3")
+    dir3 = os.path.join(PROJECT_DIR, "local_outputs", "six_method_phase13_test3")
     cmd = [
         sys.executable, RUNNER,
         "--input", modified_data,

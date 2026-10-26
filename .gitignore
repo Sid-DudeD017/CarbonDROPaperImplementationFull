@@ -86,6 +86,8 @@ data/
 downloads/
 raw_data/
 real_data_collection/data/
+regime_shift_csv/
+data/regime_shift/
 
 # API response caches
 *.zip
@@ -94,8 +96,9 @@ token.json
 api_cache/
 cache/
 
-# Local experiment reruns
+# Local experiment reruns and outputs
 reproduced_results/
+local_outputs/
 out/
 out_*/
 results/
@@ -103,12 +106,8 @@ results_*/
 scratch_outputs/
 scratch_plots/
 
-# Ignore generated artifacts by default
-artifacts/*
-
-# Preserve the final verified 1,000-OOD publication artifacts
-!artifacts/six_method_phase13_1000/
-!artifacts/six_method_phase13_1000/**
+# Ignore artifacts
+artifacts/
 
 # Nested repositories or accidental local clones
 CarbonDROpaperImplementation/
@@ -120,11 +119,6 @@ CarbonAwareDROSixScheduler/
 *worktree*/
 phase*_worktree/
 agent_*_worktree/
-
-# Test-generated artifact directories
-artifacts/six_method_phase13_test/
-artifacts/six_method_phase13_test2/
-artifacts/six_method_phase13_test3/
 
 # Matplotlib/font caches
 .matplotlib/

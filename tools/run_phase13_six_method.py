@@ -30,27 +30,12 @@ def main():
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    df = pd.read_csv(args.input)
-    if len(df) != 24:
-        raise ValueError(f"Expected exactly 24 observations, got {len(df)}")
+    from tools.input_loader import load_paper_day_csv
 
-    df = df.sort_values("timestamp_utc").reset_index(drop=True)
-
+    price_array, carbon_array, renew_array, input_meta = load_paper_day_csv(args.input)
+    df = pd.read_csv(args.input).sort_values("timestamp_utc").reset_index(drop=True)
     site1_price = df["price_usd_per_kwh"].values
     site1_carbon = df["carbon_kg_per_kwh"].values
-
-    if not np.all(np.isfinite(site1_price)) or not np.all(np.isfinite(site1_carbon)):
-        raise ValueError("Missing or non-finite values in input")
-
-    site2_price = site1_price * 1.042
-    site2_carbon = site1_carbon + 0.028
-
-    site3_price = site1_price * 0.969
-    site3_carbon = np.clip(site1_carbon - 0.018, 0.0, None)
-
-    price_array = np.vstack([site1_price, site2_price, site3_price])
-    carbon_array = np.vstack([site1_carbon, site2_carbon, site3_carbon])
-    renew_array = derive_renewable_fraction(carbon_array)
 
     timestamps = df["timestamp_utc"].values.tolist()
 

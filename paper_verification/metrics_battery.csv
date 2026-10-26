@@ -1,2 +1,0 @@
-exp_cost,exp_carbon,exp_renewable_util,cvar90_carbon,cvar95_carbon,cvar90_cost,cvar95_cost,sla_violation_rate,std_cost,std_carbon,runtime_sec,dispatch_method,note
-23.74059868714756,71.31482390840263,0.1839314949507758,86.4800810109023,86.4800810109023,29.303968185648664,29.303968185648664,0.0,3.1860731979152894,7.368974486075171,0.37797195800521877,carbon_threshold_heuristic,NOT full DRO joint optimisation; see paper Section 8.2
