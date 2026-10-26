@@ -1,0 +1,30 @@
+{
+  "repository": {
+    "origin": "https://github.com/Sid-DudeD017/CarbonDROPaperImplementationFull.git",
+    "branch": "team/clean-author-format-handoff",
+    "checkedOutHead": "5c58e609c6fd45d1c85619a24b44d750f66d8d8f",
+    "auditedReferenceHead": "3ce8fab3f7ba3987beb2ac75d387c997a6fe8db2",
+    "difference": "The checked-out branch tip differs from the audited reference only by adding docs/base_paper_project_website_source_CORRECTED.md. The report, metric CSVs, and figures are present in this checkout."
+  },
+  "claims": [
+    {"class":"PUBLISHED PAPER","source":"Hardik Ruparel, Journal of Cloud Computing 15, article 84 (2026), DOI 10.1186/s13677-026-00904-7","claim":"Published comparative values are shown separately and are not described as independently reproduced."},
+    {"class":"REPRODUCED PROJECT RESULT","sources":["author_format_outputs/metrics_comparative.csv","author_format_outputs/metrics_real_data.csv","author_format_outputs/run_manifest.json","docs/base_paper_project_website_source_CORRECTED.md §8"],"claim":"Six-policy canonical benchmark values reproduced from the tracked author-format files; runtime excluded from exact comparison."},
+    {"class":"IMPLEMENTED HEURISTIC","sources":["scheduler_v4_2.py: assign_jobs_greedy, build_score_cube","author_format_outputs/run_manifest.json"],"claim":"Accepted DRO-labeled path is dro_solver_mode=greedy and is a risk-adjusted score heuristic."},
+    {"class":"ILLUSTRATIVE SIMULATION","sources":["Presentation local interaction; no scientific result source"],"claim":"Interactive scheduling sandbox is educational and does not represent a repository experiment."},
+    {"class":"LOCAL / EXPLORATORY","sources":["docs/base_paper_project_website_source_CORRECTED.md §§6.2–6.3, 8.4"],"claim":"The full historical dataset and regime-shift outputs are ignored/local-only; 0/48 consensus detector successes is reported from that local evidence."},
+    {"class":"NOT IMPLEMENTED","sources":["docs/base_paper_project_website_source_CORRECTED.md §§2, 12–13"],"claim":"Exact binary MILP/MISOCP, formal Wasserstein or moment DRCC, Benders decomposition, SLA-CVaR, and independent capacity-feasibility validation."}
+  ],
+  "copiedAssets": [
+    {"website":"public/data/metrics_comparative.csv","source":"author_format_outputs/metrics_comparative.csv"},
+    {"website":"public/data/metrics_real_data.csv","source":"author_format_outputs/metrics_real_data.csv"},
+    {"website":"public/data/metrics_illustrative.csv","source":"author_format_outputs/metrics_illustrative.csv"},
+    {"website":"public/data/metrics_scale_sweep.csv","source":"author_format_outputs/metrics_scale_sweep.csv"},
+    {"website":"public/data/metrics_sensitivity.csv","source":"author_format_outputs/metrics_sensitivity.csv"},
+    {"website":"public/data/metrics_battery.csv","source":"author_format_outputs/metrics_battery.csv"},
+    {"website":"public/data/metrics_pareto.csv","source":"author_format_outputs/metrics_pareto.csv"},
+    {"website":"public/data/metrics_compute_cost.csv","source":"author_format_outputs/metrics_compute_cost.csv"},
+    {"website":"public/data/run_manifest.json","source":"author_format_outputs/run_manifest.json (absolute input path removed; relative provenance retained)"},
+    {"website":"public/data/paper_day_2025-08-05.csv","source":"example_data/paper_day_2025-08-05.csv"},
+    {"website":"public/plots/plot1_comparative_barplot.png … plot14_compute_cost.png","source":"author_format_outputs/plots/plot*.png"}
+  ]
+}
